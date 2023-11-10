@@ -24,7 +24,7 @@ jobs:
     - name: Print RDS URL
       run: echo "URL IS ${RDS_URL}" # Remove or comment out this line once the issue is resolved
     - name: Print RDS USERNAME
-      run: echo "URL IS ${RDS_USERNAME}" # Remove or comment out this line once the issue is resolved
+      run: echo ${{ secrets.RDS_PASSWORD }} # Remove or comment out this line once the issue is resolved
     - name: Build with Maven
       run: mvn -B package --file pom.xml
     - name: Run tests
