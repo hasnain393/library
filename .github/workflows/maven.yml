@@ -8,30 +8,33 @@ jobs:
   build:
 
     runs-on: self-hosted
-    env:
-      RDS_URL: ${{ secrets.RDS_URL }}
-      RDS_USERNAME: ${{ secrets.RDS_USERNAME }}
-      RDS_PASSWORD: ${{ secrets.RDS_PASSWORD }}
 
     steps:
     - uses: actions/checkout@v3
+
     - name: Set up JDK 8
       uses: actions/setup-java@v3
       with:
-        java-version: '8.0.302+8' # Specify a version of Java 8
-        distribution: 'temurin' # AdoptOpenJDK has been rebranded to Eclipse Temurin
+        java-version: '8.0.302+8'
+        distribution: 'temurin'
         cache: maven
-    - name: Print RDS URL
-      run: echo "RDS URL is $RDS_URL" # Remove or comment out this line once the issue is resolved
+
     - name: Build with Maven
       run: mvn -B package --file pom.xml
-    - name: Run tests
-      run: mvn test -Dspring.datasource.url=${{ secrets.RDS_URL }} -Dspring.datasource.username=${{ secrets.RDS_USERNAME }} -Dspring.datasource.password=${{ secrets.RDS_PASSWORD }}
-    - name: Execute Jar File
-      run: |
-        sudo kill -9 `sudo lsof -t -i:${{ secrets.APP_PORT }}` || true # This will ignore the error if no process is found
-        sudo java -jar /home/ubuntu/actions-runner/_work/library/library/target/library-0.0.1-SNAPSHOT.jar &
 
-    # If you want to enable the dependency graph update, uncomment the following lines
-    # - name: Update dependency graph
-    #  uses: advanced-security/maven-dependency-submission-action@v3
+    - name: Run tests
+      run: mvn test
+
+    - name: Execute Jar File
+      env:
+        RDS_URL: ${{ secrets.RDS_URL }}
+        RDS_USERNAME: ${{ secrets.RDS_USERNAME }}
+        RDS_PASSWORD: ${{ secrets.RDS_PASSWORD }}
+        APP_PORT: ${{ secrets.APP_PORT }}
+      run: |
+        # Check if the port is in use and kill the process using it
+        if lsof -t -i:$APP_PORT; then
+          kill -9 $(lsof -t -i:$APP_PORT)
+        fi
+        # Execute the JAR file
+        java -jar /home/ubuntu/actions-runner/_work/library/library/target/library-0.0.1-SNAPSHOT.jar
