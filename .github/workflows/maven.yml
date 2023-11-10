@@ -23,8 +23,12 @@ jobs:
         cache: maven
     - name: Build with Maven
       run: mvn -B package --file pom.xml
+    - name: Run tests
+      run: mvn test -Dspring.datasource.url=${{ secrets.RDS_URL }} -Dspring.datasource.username=${{ secrets.RDS_USERNAME }} -Dspring.datasource.password=${{ secrets.RDS_PASSWORD }}
     - name: Execute Jar File
-      run: sudo kill -9 `sudo lsof -t -i:${{secrets.APP_PORT}}` & sudo java -jar /home/ubuntu/actions-runner/_work/library/library/target/library-0.0.1-SNAPSHOT.jar & 
+      run: |
+        sudo kill -9 `sudo lsof -t -i:${{ secrets.APP_PORT }}` || true # This will ignore the error if no process is found
+        sudo java -jar /home/ubuntu/actions-runner/_work/library/library/target/library-0.0.1-SNAPSHOT.jar &
 
     # If you want to enable the dependency graph update, uncomment the following lines
     # - name: Update dependency graph
