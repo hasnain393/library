@@ -28,7 +28,7 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
     - name: Run tests
-      run: mvn test -Dspring.datasource.url=${{ secrets.RDS_URL }} -Dspring.datasource.username=${{ secrets.RDS_USERNAME }} -Dspring.datasource.password=${{ secrets.RDS_PASSWORD }}
+      run: mvn test -Dspring.datasource.url=${RDS_URL} -Dspring.datasource.username=${secrets.RDS_USERNAME} -Dspring.datasource.password=${secrets.RDS_PASSWORD}
     - name: Execute Jar File
       run: |
         sudo kill -9 `sudo lsof -t -i:${{ secrets.APP_PORT }}` || true # This will ignore the error if no process is found
