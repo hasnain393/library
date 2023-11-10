@@ -28,9 +28,9 @@ jobs:
         APP_PORT: ${{ secrets.APP_PORT }}
       run: |
         # Check if the port is in use and kill the process using it
-        if lsof -t -i:$APP_PORT; then
-          kill -9 $(lsof -t -i:$APP_PORT)
+        if lsof -t -i:${{ secrets.APP_PORT }}; then
+          kill -9 $(lsof -t -i:${{ secrets.APP_PORT }})
         fi
-         mvn -B package --file pom.xml &
+         mvn -B package --file pom.xml 
         # Execute the JAR file
         java -jar /home/ubuntu/actions-runner/_work/library/library/target/library-0.0.1-SNAPSHOT.jar
