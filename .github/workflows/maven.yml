@@ -22,13 +22,11 @@ jobs:
         distribution: 'temurin' # AdoptOpenJDK has been rebranded to Eclipse Temurin
         cache: maven
     - name: Print RDS URL
-      run: echo "URL IS ${RDS_URL}" # Remove or comment out this line once the issue is resolved
-    - name: Print RDS USERNAME
-      run: echo ${{ secrets.RDS_PASSWORD }} # Remove or comment out this line once the issue is resolved
+      run: echo "RDS URL is $RDS_URL" # Remove or comment out this line once the issue is resolved
     - name: Build with Maven
       run: mvn -B package --file pom.xml
     - name: Run tests
-      run: mvn test -Dspring.datasource.url=${RDS_URL} -Dspring.datasource.username=${secrets.RDS_USERNAME} -Dspring.datasource.password=${secrets.RDS_PASSWORD}
+      run: mvn test -Dspring.datasource.url=${{ secrets.RDS_URL }} -Dspring.datasource.username=${{ secrets.RDS_USERNAME }} -Dspring.datasource.password=${{ secrets.RDS_PASSWORD }}
     - name: Execute Jar File
       run: |
         sudo kill -9 `sudo lsof -t -i:${{ secrets.APP_PORT }}` || true # This will ignore the error if no process is found
