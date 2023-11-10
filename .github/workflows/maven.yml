@@ -20,7 +20,7 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
     - name: Execute Jar File
-      run: sudo kill -9 `sudo lsof -t -i:${{secrets.APP_PORT}}` & sudo java -jar /home/ubuntu/actions-runner/_work/githubaction-springboot-env-ec2/githubaction-springboot-env-ec2/target/library-0.0.1-SNAPSHOT.jar & 
+      run: sudo kill -9 `sudo lsof -t -i:${{secrets.APP_PORT}}` & sudo java -jar /home/ubuntu/actions-runner/_work/library/library/target/library-0.0.1-SNAPSHOT.jar & 
 
     # If you want to enable the dependency graph update, uncomment the following lines
     # - name: Update dependency graph
