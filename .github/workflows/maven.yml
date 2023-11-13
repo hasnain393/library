@@ -6,7 +6,6 @@ on:
 
 jobs:
   build:
-
     runs-on: self-hosted
     env:
       RDS_URL: ${{ secrets.RDS_URL }}
