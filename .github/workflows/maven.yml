@@ -8,29 +8,44 @@ jobs:
   build:
 
     runs-on: self-hosted
+    env:
+      RDS_URL: ${{ secrets.RDS_URL }}
+      RDS_USERNAME: ${{ secrets.RDS_USERNAME }}
+      RDS_PASSWORD: ${{ secrets.RDS_PASSWORD }}
 
     steps:
     - uses: actions/checkout@v3
-
     - name: Set up JDK 8
       uses: actions/setup-java@v3
       with:
-        java-version: '8.0.302+8'
-        distribution: 'temurin'
+        java-version: '8.0.302+8' # Specify a version of Java 8
+        distribution: 'temurin' # AdoptOpenJDK has been rebranded to Eclipse Temurin
         cache: maven
-
-        
-    - name: Execute Jar File
-      env:
-        RDS_URL: ${{ secrets.RDS_URL }}
-        RDS_USERNAME: ${{ secrets.RDS_USERNAME }}
-        RDS_PASSWORD: ${{ secrets.RDS_PASSWORD }}
-        APP_PORT: ${{ secrets.APP_PORT }}
+    - name: Set environment variables for the application
       run: |
-        # Check if the port is in use and kill the process using it
-        if lsof -t -i:${{ secrets.APP_PORT }}; then
-          kill -9 $(lsof -t -i:${{ secrets.APP_PORT }})
-        fi
-         mvn -B package --file pom.xml 
-        # Execute the JAR file
-        java -jar /home/ubuntu/actions-runner/_work/library/library/target/library-0.0.1-SNAPSHOT.jar
+        echo "RDS_URL=${{ secrets.RDS_URL }}" >> $GITHUB_ENV
+        echo "RDS_USERNAME=${{ secrets.RDS_USERNAME }}" >> $GITHUB_ENV
+        echo "RDS_PASSWORD=${{ secrets.RDS_PASSWORD }}" >> $GITHUB_ENV
+    - name: Print RDS URL
+      run: echo ${RDS_URL} # Remove or comment out this line once the issue is resolved
+    - name: Print RDS USERNAME
+      run: echo  ${RDS_USERNAME} # Remove or comment out this line once the issue is resolved
+      
+    - name: Build with Maven
+      run: mvn -B package --file pom.xml
+    - name: Set environment variables for the application
+      run: |
+        echo "RDS_URL=${{ secrets.RDS_URL }}" >> $GITHUB_ENV
+        echo "RDS_USERNAME=${{ secrets.RDS_USERNAME }}" >> $GITHUB_ENV
+        echo "RDS_PASSWORD=${{ secrets.RDS_PASSWORD }}" >> $GITHUB_ENV
+    - name: Run tests
+      run: mvn test -Dspring.datasource.url=${{ secrets.RDS_URL }} -Dspring.datasource.username=${{ secrets.RDS_USERNAME }} -Dspring.datasource.password=${{ secrets.RDS_PASSWORD }}
+    - name: Set environment variables for the application
+      run: |
+        echo "RDS_URL=${{ secrets.RDS_URL }}" >> $GITHUB_ENV
+        echo "RDS_USERNAME=${{ secrets.RDS_USERNAME }}" >> $GITHUB_ENV
+        echo "RDS_PASSWORD=${{ secrets.RDS_PASSWORD }}" >> $GITHUB_ENV    
+    - name: Execute Jar File
+      run: |
+        sudo kill -9 `sudo lsof -t -i:${{ secrets.APP_PORT }}` || true # This will ignore the error if no process is found
+        sudo java -jar /home/ubuntu/actions-runner/_work/library/library/target/library-0.0.1-SNAPSHOT.jar &
